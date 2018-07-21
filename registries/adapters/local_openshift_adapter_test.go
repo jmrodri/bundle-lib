@@ -19,10 +19,10 @@ package adapters
 import (
 	"testing"
 
-	ft "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLocalOpenshiftName(t *testing.T) {
 	loa := LocalOpenShiftAdapter{}
-	ft.Equal(t, loa.RegistryName(), "openshift-registry", "local_openshift name does not match openshift-registry")
+	assert.Equal(t, loa.RegistryName(), "openshift-registry", "local_openshift name does not match openshift-registry")
 }
