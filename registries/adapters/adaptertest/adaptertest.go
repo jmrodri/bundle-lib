@@ -23,6 +23,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/automationbroker/bundle-lib/bundle"
 )
 
 const apiV2TestCatalogResponse = `
@@ -129,4 +131,16 @@ func GetURL(t *testing.T, s *httptest.Server) *url.URL {
 		t.Fatal("Error: ", err)
 	}
 	return url
+}
+
+// GetServer returns a test http server which will run whatever HandlerFunc we
+// pass in.
+func GetServer(t *testing.T, handler http.HandlerFunc) *httptest.Server {
+	return httptest.NewServer(handler)
+}
+
+// BundleNilableNumber returns a bundle.NilableNumber given a float64
+func BundleNilableNumber(i float64) *bundle.NilableNumber {
+	n := bundle.NilableNumber(i)
+	return &n
 }
