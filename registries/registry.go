@@ -17,7 +17,6 @@
 package registries
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -122,12 +121,10 @@ func (r Registry) LoadSpecs() ([]*bundle.Spec, int, error) {
 	}
 
 	if len(filteredNames) != 0 {
-		var buffer bytes.Buffer
-		buffer.WriteString("Bundles filtered by white/blacklist filter:")
+		log.Infof("Bundles filtered by white/blacklist filter:")
 		for _, name := range filteredNames {
-			buffer.WriteString(fmt.Sprintf("-> %s", name))
+			log.Infof(fmt.Sprintf("-> %s", name))
 		}
-		log.Infof(buffer.String())
 	}
 
 	// Debug output filtered out names.
