@@ -17,6 +17,7 @@
 package registries
 
 import (
+	"fmt"
 	"regexp"
 	"sync"
 
@@ -50,7 +51,9 @@ type Filter struct {
 
 // Init - Initializes Filter, precompiling regex
 func (f *Filter) Init() {
+	fmt.Println("XXX init called")
 	compiled, failed := compileRegexp(f.whitelist)
+	fmt.Printf("XXX c [%#v] f [%#v]\n", compiled, failed)
 	f.whiteRegexp = compiled
 	f.failedWhiteRegexp = failed
 	compiled, failed = compileRegexp(f.blacklist)
@@ -96,13 +99,17 @@ func (f *Filter) Run(totalList []string) ([]string, []string) {
 // FilterMode - FilterMode getter
 func (f *Filter) getFilterMode() filterMode {
 	if len(f.whiteRegexp) != 0 && len(f.blackRegexp) != 0 {
+		fmt.Println("XXX both mode")
 		return filterModeBoth
 	} else if len(f.whiteRegexp) != 0 {
+		fmt.Println("XXX whitelist mode")
 		return filterModeWhite
 	} else if len(f.blackRegexp) != 0 {
+		fmt.Println("XXX black mode")
 		return filterModeBlack
 	}
 
+	fmt.Println("XXX none mode")
 	return filterModeNone
 }
 

@@ -109,11 +109,16 @@ func (r Registry) LoadSpecs() ([]*bundle.Spec, int, error) {
 			r.config.Name, err)
 		return []*bundle.Spec{}, 0, err
 	}
+
+	fmt.Printf("XXX imageNames [%v]\n", imageNames)
 	validNames, filteredNames := r.filter.Run(imageNames)
+	fmt.Printf("XXX validNames [%v]\n", validNames)
+	fmt.Printf("XXX filteredNames [%v]\n", filteredNames)
 
 	log.Debugf("Filter applied against registry: %s", r.config.Name)
 
 	if len(validNames) != 0 {
+		fmt.Println("XXX Bundles passing white/blacklist filter:")
 		log.Debugf("Bundles passing white/blacklist filter:")
 		for _, name := range validNames {
 			log.Debugf("-> %s", name)

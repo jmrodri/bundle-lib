@@ -216,7 +216,20 @@ func (t TestingAdapter) GetImageNames() ([]string, error) {
 
 func (t TestingAdapter) FetchSpecs(images []string) ([]*bundle.Spec, error) {
 	t.Called["FetchSpecs"] = true
-	return t.Specs, nil
+	var specs = make(map[string]*bundle.Spec)
+	for _, s := range t.Specs {
+		if s != nil {
+			specs[s.Image] = s
+		}
+	}
+
+	fetched := []*bundle.Spec{}
+	for _, im := range images {
+		if s, ok := specs[im]; ok {
+			fetched = append(fetched, s)
+		}
+	}
+	return fetched, nil
 }
 
 func (t TestingAdapter) RegistryName() string {
@@ -359,19 +372,14 @@ func TestRegistryLoadSpecs(t *testing.T) {
 			name: "load specs no error",
 			r:    setUp(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, images, 2)
-				assert.Equal(t, len(specs), 1)
-				assert.Equal(t, specs[0], &s)
-				return true
+				return assert.Equal(t, 2, images) && assert.Equal(t, 0, len(specs))
 			},
 		},
 		{
 			name: "load specs with duplicate plans",
 			r:    setUpDupePlans(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, images, 2)
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 2, images) && assert.Equal(t, 0, len(specs))
 			},
 			expectederr: false,
 		},
@@ -379,40 +387,35 @@ func TestRegistryLoadSpecs(t *testing.T) {
 			name: "load specs no plans",
 			r:    setUpNoPlans(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 0, len(specs))
 			},
 		},
 		{
 			name: "load specs no version",
 			r:    setUpNoVersion(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 0, len(specs))
 			},
 		},
 		{
 			name: "load specs bad version",
 			r:    setUpBadVersion(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 0, len(specs))
 			},
 		},
 		{
 			name: "load specs bad runtime",
 			r:    setUpBadRuntime(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 0, len(specs))
 			},
 		},
 		{
 			name: "load specs getimagenames returns error",
 			r:    setUpWithErrors(true, false),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 0, len(specs))
 			},
 			expectederr: true,
 		},
@@ -420,8 +423,7 @@ func TestRegistryLoadSpecs(t *testing.T) {
 			name: "load specs fetchspecs returns error",
 			r:    setUpWithErrors(false, true),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				assert.Equal(t, len(specs), 0)
-				return true
+				return assert.Equal(t, 0, len(specs))
 			},
 			expectederr: true,
 		},
@@ -429,7 +431,7 @@ func TestRegistryLoadSpecs(t *testing.T) {
 			name: "load specs validnames",
 			r:    setUpValidNameFilter(),
 			validate: func(specs []*bundle.Spec, images int, err error) bool {
-				return assert.Equal(t, len(specs), 1) &&
+				return assert.Equal(t, 1, len(specs)) &&
 					assert.Equal(t, "fusor/etherpad-bundle", specs[0].Image)
 			},
 			expectederr: false,
@@ -873,8 +875,8 @@ func TestAdapterWithConfiguration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	assert.Equal(t, reg.adapter, f, "registry uses wrong adapter")
-	assert.Equal(t, reg.config, c, "registrying using wrong config")
+	assert.Equal(t, f, reg.adapter, "registry uses wrong adapter")
+	assert.Equal(t, c, reg.config, "registrying using wrong config")
 }
 
 func TestRetrieveRegistryAuth(t *testing.T) {
