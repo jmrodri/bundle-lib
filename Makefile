@@ -41,6 +41,7 @@ check: fmtcheck vet lint build test ## Pre-flight checks before creating PR
 
 clean: ## Clean up your working environment
 	@rm -f coverage-all.out coverage.out
+	@go clean -testcache
 
 generate: ## regenerate mocks
 	go get github.com/vektra/mockery/.../
